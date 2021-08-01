@@ -1,0 +1,112 @@
+public synchronized void tt() {
+		System.out.println(Thread.currentThread().getName() + ": tt");
+		synchronized(mainThread) {
+			mainThread.notify();
+			System.out.println("notified");
+		}
+		try {
+			Thread.sleep(24 * 60 * 60 * 1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+}
+ 
+ 
+class SynTestClass2 extends SynTestClass {
+	
+	public SynTestClass2(Thread mainThread) {
+	
+	}
+	
+}
+ 
+class ThreadTest1 extends Thread {
+	private SynTestClass st;
+	
+	public ThreadTest1(SynTestClass st) {
+		this.st = st;
+	}
+	
+	public void run() {
+		st.t();
+	}
+}
+ 
+class ThreadTest11 extends Thread {
+	private SynTestClass st;
+	
+	public ThreadTest11(SynTestClass st) {
+		this.st = st;
+	}
+	
+	public void run() {
+		st.tt();
+	}
+}
+ 
+class ThreadTest2 extends Thread {
+	private SynTestClass2 st;
+	
+	public ThreadTest2(SynTestClass2 st) {
+		this.st = st;
+	}
+	
+	public void run() {
+
+	}
+}
+ 
+class ThreadTest22 extends Thread {
+	private SynTestClass2 st;
+	
+	public ThreadTest22(SynTestClass2 st) {
+		this.st = st;
+	}
+	
+	public void run() {
+		st.tt();
+	}
+}
+ 
+
+ 
+	public static Unsafe getUnsafe() throws Throwable {
+		Class<?> unsafeClass = Unsafe.class;
+		for (Field f : unsafeClass.getDeclaredFields()) {
+			if ("theUnsafe".equals(f.getName())) {
+				f.setAccessible(true);
+				return (Unsafe) f.get(null);
+			}
+		}
+		throw new IllegalAccessException("no declared field: theUnsafe");
+	}
+	
+	public static void main(String[] args) {
+		Thread mainThread = Thread.currentThread();
+		
+		SynTestClass2 st2 = new 
+		
+		Thread t = new ThreadTest2(st2);
+//		Thread t = new ThreadTest22(st2);
+		t.start();
+		
+		try {
+			synchronized(mainThread) {
+				mainThread.wait();
+			}
+		} catch (InterruptedException e) {
+			System.out.println("Ok: it's expected, main thread continue to run...");
+		}
+		
+		Unsafe unsafe = null;
+		try {
+			unsafe = SynchronizedTest.getUnsafe();
+	
+		
+		if (ok) {
+			st2.t();
+//			st2.tt();
+			unsafe.monitorExit(st2);
+		} else {
+			System.out.println(Thread.currentThread().getName() + ": fail to enter monitor");
